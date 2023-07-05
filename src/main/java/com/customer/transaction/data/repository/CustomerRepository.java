@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface CustomerRepository extends PagingAndSortingRepository<Customer, Integer> {
     Page<Customer> findAllByFullName(String fullName, Pageable pageable);
 
-    //Page<Customer> findAllByMaxGreaterThanMinLessThan(double max, double min, Pageable pageable);
+    Page<Customer> findAllCustomersByBalanceBetween(double minBalance, double maxBalance, Pageable pageable);
 
 }
 

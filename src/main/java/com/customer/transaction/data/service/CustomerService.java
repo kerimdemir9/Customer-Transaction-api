@@ -50,15 +50,15 @@ public class CustomerService {
         }
     }
 
-/*
-    public GenericPagedModel<Customer> findAllByMaxGreaterThanMinLessThan(double max, double min, int page, int size, String sortBy, SortDirection sortDirection) {
+
+    public GenericPagedModel<Customer> findAllCustomersByBalanceBetween(double minBalance, double maxBalance, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)
-                    ? customerRepository.findAllByMaxGreaterThanMinLessThan(max, min, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
-                    : customerRepository.findAllByMaxGreaterThanMinLessThan(max, min, PageRequest.of(page, size, Sort.by(sortBy).descending()));
+                    ? customerRepository.findAllCustomersByBalanceBetween(minBalance, maxBalance, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
+                    : customerRepository.findAllCustomersByBalanceBetween(minBalance, maxBalance, PageRequest.of(page, size, Sort.by(sortBy).descending()));
             if (result.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Max:".concat(String.valueOf(max)).concat(" Min:").concat(String.valueOf(min)));
+                        "Min:".concat(String.valueOf(minBalance)).concat(" Max:").concat(String.valueOf(maxBalance)));
             }
             return GenericPagedModel.<Customer>builder()
                     .totalElements(result.getTotalElements())
@@ -70,7 +70,7 @@ public class CustomerService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
         }
     }
-*/
+
 
     public GenericPagedModel<Customer> findAllByFullName(String fullName, int page, int size, String sortBy, SortDirection sortDirection) {
         try {

@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static com.customer.transaction.controller.util.Parsers.tryParseDouble;
 import static com.customer.transaction.controller.util.Parsers.tryParseInteger;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.builder;
@@ -35,6 +36,21 @@ public class CustomerController {
         val customer = customerService.findById(tryParseInteger(id, "id"));
 
         return ResponseEntity.ok(mapCustomerToCustomerView(customer));
+    }
+
+    @RequestMapping(value = "/v1/customers/find_all_by_balance_between/{min}&{max}", method = RequestMethod.GET)
+    private ResponseEntity<PagedData<CustomerView>> getAllCustomersByBalanceBetween(
+            @PathVariable String min, @PathVariable String max,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
+        log.info("Calling: gelAllCustomersByBalanceBetween >> minBalance: ".concat(min).concat("  maxBalance: ").concat(max));
+
+        val result = customerService.findAllCustomersByBalanceBetween(tryParseDouble(min, "min"), tryParseDouble(max, "max"), pageNo, pageSize, sortBy, SortDirection.of(sortDir));
+
+        return ResponseEntity.ok(mapPaged(result));
     }
 
     @RequestMapping(value = "v1/customers/find_all", method = RequestMethod.GET)

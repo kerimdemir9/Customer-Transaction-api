@@ -38,4 +38,14 @@ public class Parsers {
 
         return result;
     }
+
+
+    public static Double tryParseDouble(String value, String property) {
+        val result = NumberUtils.toDouble(value, -1);
+
+        if (result == -1) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, property.concat(":").concat(value));
+        }
+        return result;
+    }
 }
