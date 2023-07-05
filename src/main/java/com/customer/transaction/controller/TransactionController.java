@@ -70,13 +70,13 @@ public class TransactionController {
     @RequestMapping(value = "/v1/transactions/find_all_by_customer_created_before_created_after", method = RequestMethod.GET)
     private ResponseEntity<PagedData<TransactionView>> getAllByCustomerAndCreatedBeforeAndCreatedAfterV1(
             @RequestBody Customer customer,
-            @RequestParam(defaultValue = "") String createdBefore,
-            @RequestParam(defaultValue = "") String createdAfter,
+            @RequestParam(defaultValue = "2023-07-05 23:00:52") String createdBefore,
+            @RequestParam(defaultValue = "2023-07-05 00:00:52") String createdAfter,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        log.info("Calling: getAllByCustomerAndCreatedBeforeAndCreatedAfterV1 >> Customer fullName:"
+        log.info("Calling: getAllByCustomerAndCreatedBeforeAndCreatedAfterV1 >> Customer fullName: "
                 .concat(customer.getFullName())
                 .concat(" | Created Before: ").concat(createdBefore)
                 .concat(" | Created After: ").concat(createdAfter));
@@ -84,6 +84,8 @@ public class TransactionController {
         val result = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer,
                 new Date(tryParseLong(createdBefore, "createdBefore")),
                 new Date(tryParseLong(createdAfter, "createdAfter")), pageNo, pageSize, sortBy, SortDirection.of(sortDir));
+
+        log.info("result".concat(result.toString()));
 
         return ResponseEntity.ok(mapPaged(result));
     }
