@@ -1,4 +1,4 @@
-package com.customer.transaction.Data.model;
+package com.customer.transaction.data.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;

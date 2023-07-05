@@ -1,8 +1,8 @@
-package com.customer.transaction.Data.service;
+package com.customer.transaction.data.service;
 
-import com.customer.transaction.Data.model.Customer;
-import com.customer.transaction.Data.repository.CustomerRepository;
-import com.customer.transaction.Data.util.GenericPagedModel;
+import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.repository.CustomerRepository;
+import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -71,6 +71,7 @@ public class CustomerService {
         }
     }
 */
+
     public GenericPagedModel<Customer> findAllByFullName(String fullName, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)

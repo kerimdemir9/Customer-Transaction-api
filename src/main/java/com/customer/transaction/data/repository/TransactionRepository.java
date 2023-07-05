@@ -1,7 +1,7 @@
-package com.customer.transaction.Data.repository;
+package com.customer.transaction.data.repository;
 
-import com.customer.transaction.Data.model.Customer;
-import com.customer.transaction.Data.model.Transaction;
+import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;

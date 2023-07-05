@@ -1,6 +1,5 @@
-package com.customer.transaction.Data.model;
+package com.customer.transaction.data.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 

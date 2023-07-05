@@ -1,9 +1,9 @@
-package com.customer.transaction.Data.service;
+package com.customer.transaction.data.service;
 
-import com.customer.transaction.Data.model.Customer;
-import com.customer.transaction.Data.model.Transaction;
-import com.customer.transaction.Data.repository.TransactionRepository;
-import com.customer.transaction.Data.util.GenericPagedModel;
+import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.model.Transaction;
+import com.customer.transaction.data.repository.TransactionRepository;
+import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -12,8 +12,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.GenericReactiveTransaction;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Date;
 
 @Service
 public class TransactionService {
@@ -56,6 +57,26 @@ public class TransactionService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No customer:".concat(customer.toString()));
             }
 
+            return GenericPagedModel.<Transaction>builder()
+                    .totalElements(result.getTotalElements())
+                    .numberOfElements(result.getNumberOfElements())
+                    .totalPages(result.getTotalPages())
+                    .content(result.getContent())
+                    .build();
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
+    public GenericPagedModel<Transaction> findAllByCustomerAndCreatedBeforeAndCreatedAfter(Customer customer, Date createdBefore, Date createdAfter, int page, int size, String sortBy, SortDirection sortDirection) {
+        try {
+            val result = sortDirection.equals(SortDirection.Ascending)
+                    ? transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdBefore, createdAfter, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
+                    : transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdBefore, createdAfter, PageRequest.of(page, size, Sort.by(sortBy).descending()));
+            if(result.isEmpty())
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transaction between dates:".concat(createdBefore.toString()).concat(createdAfter.toString()).concat("of customer:").concat(customer.toString()));
+            }
             return GenericPagedModel.<Transaction>builder()
                     .totalElements(result.getTotalElements())
                     .numberOfElements(result.getNumberOfElements())

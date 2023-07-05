@@ -1,4 +1,4 @@
-package com.customer.transaction.Data.util;
+package com.customer.transaction.data.util;
 
 import lombok.Builder;
 import lombok.Data;
