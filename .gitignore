@@ -30,7 +30,5 @@ build/
 !**/src/test/**/build/
 
 src/main/resources/application.yml
-.gitignore
-
 ### VS Code ###
 .vscode/
