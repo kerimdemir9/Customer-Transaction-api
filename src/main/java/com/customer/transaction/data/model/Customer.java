@@ -24,10 +24,10 @@ public class Customer {
     private String fullName;
 
     @Column(name = "phone_number")
-    private Integer phoneNumber;
+    private String phoneNumber;
 
     @Column(name = "balance")
-    private Double balance;
+    private double balance;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference

@@ -23,7 +23,7 @@ public class Transaction {
 
 
     @Column(name = "amount")
-    private Double amount;
+    private double amount;
 
     @CreationTimestamp
     @Column(insertable = false, updatable = false)

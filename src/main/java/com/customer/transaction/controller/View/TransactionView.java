@@ -2,15 +2,16 @@ package com.customer.transaction.controller.View;
 
 import lombok.*;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerView {
+public class TransactionView {
     private Integer id;
-    private String fullName;
-    private String phoneNumber;
-    private double balance;
+    private double amount;
+    private Date created;
 }
