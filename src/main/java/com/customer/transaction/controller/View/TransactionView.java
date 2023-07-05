@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class TransactionView {
     private Integer id;
-    private double amount;
+    private Double amount;
     private Date created;
+    private Integer customer_id;
 }

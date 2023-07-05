@@ -33,9 +33,9 @@ public class CustomerController {
     private ResponseEntity<CustomerView> getCustomerByIdV1(@PathVariable String id) {
         log.info("Calling: getCustomerByIdV1 >> ".concat(id));
 
-        val customer = customerService.findById(tryParseInteger(id, "id"));
+        val result = customerService.findById(tryParseInteger(id, "id"));
 
-        return ResponseEntity.ok(mapCustomerToCustomerView(customer));
+        return ResponseEntity.ok(mapCustomerToCustomerView(result));
     }
 
     @RequestMapping(value = "/v1/customers/find_all_by_balance_between/{min}&{max}", method = RequestMethod.GET)
