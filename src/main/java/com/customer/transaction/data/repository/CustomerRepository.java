@@ -14,5 +14,6 @@ public interface CustomerRepository extends PagingAndSortingRepository<Customer,
 
     Page<Customer> findAllCustomersByBalanceBetween(double minBalance, double maxBalance, Pageable pageable);
 
+    boolean existsByPhoneNumber(String phoneNumber);
 }
 

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 public class TransactionService {
@@ -83,6 +84,31 @@ public class TransactionService {
                     .totalPages(result.getTotalPages())
                     .content(result.getContent())
                     .build();
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
+    public Transaction save(Transaction transaction) {
+        try {
+            if(transaction.getCustomer().getId() == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,
+                        "Customer: ".concat(transaction.getCustomer().toString()).concat(" doesn't exists"));
+            }
+            return transactionRepository.save(transaction);
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
+    public Transaction hardDelete(Integer id) {
+        try {
+            val transactionToHardDelete = getTransaction(id);
+
+            transactionRepository.delete(transactionToHardDelete);
+
+            return transactionToHardDelete;
+
         } catch (final DataIntegrityViolationException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
         }

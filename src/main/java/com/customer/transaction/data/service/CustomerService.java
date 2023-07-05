@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 
 @Service
 public class CustomerService {
@@ -89,8 +91,35 @@ public class CustomerService {
                     .build();
     } catch (final DataIntegrityViolationException ex) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
     }
-}
+
+
+    public Customer save(Customer customer) {
+        try {
+            if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,
+                        "phoneNumber: ".concat(customer.getPhoneNumber()).concat(" already exists"));
+            }
+            return customerRepository.save(customer);
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
+    public Customer hardDelete(Integer id) {
+        try {
+            val customerToHardDelete = getCustomer(id);
+
+            customerRepository.delete(customerToHardDelete);
+
+            return customerToHardDelete;
+
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
 
     private Customer getCustomer(Integer id) {
         try {

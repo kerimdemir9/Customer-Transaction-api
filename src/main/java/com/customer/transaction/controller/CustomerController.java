@@ -81,6 +81,31 @@ public class CustomerController {
         return ResponseEntity.ok(mapPaged(result));
     }
 
+
+    @RequestMapping(value = "/v1/customers/save", method = RequestMethod.POST)
+    private ResponseEntity<CustomerView> saveCustomerV1(@RequestBody Customer customer) {
+        log.info("Calling: saveCustomerV1 >> ".concat(customer.toString()));
+
+        val saved = customerService.save(Customer
+                .builder()
+                .id(customer.getId())
+                .fullName(customer.getFullName())
+                .phoneNumber(customer.getPhoneNumber())
+                .build());
+
+        return ResponseEntity.ok(mapCustomerToCustomerView(saved));
+    }
+
+    @RequestMapping(value = "/v1/customers/delete/{id}", method = RequestMethod.DELETE)
+    private ResponseEntity<CustomerView> deleteCustomerV1(@PathVariable String id) {
+        log.info("Calling: deleteCustomerV1 >> ".concat(id));
+
+        val result = customerService.hardDelete(tryParseInteger(id, "id"));
+
+        return ResponseEntity.ok(mapCustomerToCustomerView(result));
+    }
+
+
     private PagedData<CustomerView> mapPaged(GenericPagedModel<Customer> customers) {
         return PagedData.<CustomerView>builder()
                 .totalElements(customers.getTotalElements())

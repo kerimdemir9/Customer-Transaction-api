@@ -67,6 +67,7 @@ public class TransactionController {
     }
 
 
+    // TODO check its functionality -> it doesn't work (i couldn't make it work)
     @RequestMapping(value = "/v1/transactions/find_all_by_customer_created_before_created_after", method = RequestMethod.GET)
     private ResponseEntity<PagedData<TransactionView>> getAllByCustomerAndCreatedBeforeAndCreatedAfterV1(
             @RequestBody Customer customer,
@@ -88,6 +89,30 @@ public class TransactionController {
         log.info("result".concat(result.toString()));
 
         return ResponseEntity.ok(mapPaged(result));
+    }
+
+
+    @RequestMapping(value = "/v1/transactions/save", method = RequestMethod.POST)
+    private ResponseEntity<TransactionView> saveTransactionV1(@RequestBody Transaction transaction) {
+        log.info("Calling: saveTransactionV1 >> ".concat(transaction.toString()));
+
+        val saved = transactionService.save(Transaction
+                .builder()
+                .id(transaction.getId())
+                .amount(transaction.getAmount())
+                .created(transaction.getCreated())
+                .build());
+
+        return ResponseEntity.ok(mapTransactionToTransactionView(saved));
+    }
+
+    @RequestMapping(value = "/v1/transactions/delete/{id}", method = RequestMethod.DELETE)
+    private ResponseEntity<TransactionView> deleteCustomerV1(@PathVariable String id) {
+        log.info("Calling: deleteCustomerV1 >> ".concat(id));
+
+        val result = transactionService.hardDelete(tryParseInteger(id, "id"));
+
+        return ResponseEntity.ok(mapTransactionToTransactionView(result));
     }
 
 
