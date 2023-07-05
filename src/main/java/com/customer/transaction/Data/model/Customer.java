@@ -35,4 +35,9 @@ public class Customer {
     @ToString.Exclude
     private Collection<Transaction> transactions;
 
+    @Override
+    public String toString() {
+        return "Id: ".concat(id.toString()).concat("fullName: ").concat(fullName).concat("phone number: ").concat(phoneNumber.toString()).concat("balance: ").concat(balance.toString());
+    }
+
 }

@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.GenericReactiveTransaction;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -33,6 +34,26 @@ public class TransactionService {
                     : transactionRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy).descending()));
             if (result.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No data");
+            }
+
+            return GenericPagedModel.<Transaction>builder()
+                    .totalElements(result.getTotalElements())
+                    .numberOfElements(result.getNumberOfElements())
+                    .totalPages(result.getTotalPages())
+                    .content(result.getContent())
+                    .build();
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
+    public GenericPagedModel<Transaction> findAllByCustomer(Customer customer, int page, int size, String sortBy, SortDirection sortDirection) {
+        try {
+            val result = sortDirection.equals(SortDirection.Ascending)
+                    ? transactionRepository.findAllByCustomer(customer, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
+                    : transactionRepository.findAllByCustomer(customer, PageRequest.of(page, size, Sort.by(sortBy).descending()));
+            if (result.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No customer:".concat(customer.toString()));
             }
 
             return GenericPagedModel.<Transaction>builder()
