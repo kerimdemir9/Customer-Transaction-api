@@ -23,23 +23,25 @@ public class Transaction {
 
 
     @Column(name = "amount")
-    private double amount;
+    private Double amount;
 
     @CreationTimestamp
     @Column(insertable = false, updatable = false)
     private Date created;
 
+    @Column(name = "customer_id", insertable=false, updatable=false)
+    private Integer customerId;
+
     @ManyToOne
     @JsonBackReference
     private Customer customer;
 
+    @PrePersist
+    public void prePersist() {
+        if (customer != null) {
+            customerId = customer.getId();
+        }
+    }
 }
 
 
-/*
-    id INT NOT NULL primary key,
-    amount Double NOT NULL,
-    account_id INT NOT NULL,
-	FOREIGN KEY (customer_info_id) REFERENCES customer_info (id)
-    ON DELETE CASCADE ON UPDATE CASCADE
-*/

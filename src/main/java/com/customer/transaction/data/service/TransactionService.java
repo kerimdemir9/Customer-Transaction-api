@@ -91,9 +91,8 @@ public class TransactionService {
 
     public Transaction save(Transaction transaction) {
         try {
-            if(transaction.getCustomer().getId() == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,
-                        "Customer: ".concat(transaction.getCustomer().toString()).concat(" doesn't exists"));
+            if(transaction.getCustomer().getId() == null || transaction.getCustomer().getId() < 1) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Customer id doesn't exists");
             }
             return transactionRepository.save(transaction);
         } catch (final DataIntegrityViolationException ex) {

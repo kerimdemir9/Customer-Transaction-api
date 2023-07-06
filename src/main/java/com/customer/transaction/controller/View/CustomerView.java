@@ -12,5 +12,5 @@ public class CustomerView {
     private Integer id;
     private String fullName;
     private String phoneNumber;
-    private double balance;
+    private Double balance;
 }

@@ -99,15 +99,16 @@ public class TransactionController {
         val saved = transactionService.save(Transaction
                 .builder()
                 .id(transaction.getId())
-                .amount(transaction.getAmount())
                 .created(transaction.getCreated())
+                .amount(transaction.getAmount())
+                .customer(transaction.getCustomer())
                 .build());
 
         return ResponseEntity.ok(mapTransactionToTransactionView(saved));
     }
 
     @RequestMapping(value = "/v1/transactions/delete/{id}", method = RequestMethod.DELETE)
-    private ResponseEntity<TransactionView> deleteCustomerV1(@PathVariable String id) {
+    private ResponseEntity<TransactionView> deleteTransactionV1(@PathVariable String id) {
         log.info("Calling: deleteCustomerV1 >> ".concat(id));
 
         val result = transactionService.hardDelete(tryParseInteger(id, "id"));
@@ -136,7 +137,7 @@ public class TransactionController {
                 .amount(transaction.getAmount())
                 .created(transaction.getCreated())
                 .id(transaction.getId())
-                .customer_id(transaction.getCustomer().getId())
+                .customerId(transaction.getCustomer().getId())
                 .build();
     }
 

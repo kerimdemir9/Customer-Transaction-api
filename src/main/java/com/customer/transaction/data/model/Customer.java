@@ -13,7 +13,7 @@ import java.util.Collection;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "customer_info", schema = "bank")
+@Table(name = "customer", schema = "bank")
 @Entity
 public class Customer {
     @Id
@@ -27,7 +27,7 @@ public class Customer {
     private String phoneNumber;
 
     @Column(name = "balance")
-    private double balance;
+    private Double balance;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference

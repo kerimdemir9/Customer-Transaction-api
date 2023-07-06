@@ -133,4 +133,12 @@ public class CustomerService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
         }
     }
+
+    public void hardDeleteAll() {
+        try {
+            customerRepository.deleteAll();
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -14,5 +14,5 @@ public class TransactionView {
     private Integer id;
     private Double amount;
     private Date created;
-    private Integer customer_id;
+    private Integer customerId;
 }

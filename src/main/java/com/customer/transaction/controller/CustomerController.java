@@ -91,6 +91,7 @@ public class CustomerController {
                 .id(customer.getId())
                 .fullName(customer.getFullName())
                 .phoneNumber(customer.getPhoneNumber())
+                .balance(customer.getBalance())
                 .build());
 
         return ResponseEntity.ok(mapCustomerToCustomerView(saved));
