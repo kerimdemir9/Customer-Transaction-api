@@ -62,6 +62,7 @@ public class TransactionControllerIntegrationTests extends TestBase {
                 .id(1)
                 .amount(5000.0)
                 .created(new Date(Instant.now().toEpochMilli()))
+                .customerId(newCustomer1.getId())
                 .customer(newCustomer1)
                 .build());
     }
@@ -72,6 +73,7 @@ public class TransactionControllerIntegrationTests extends TestBase {
                 .id(2)
                 .amount(1000.0)
                 .created(new Date(Instant.now().toEpochMilli()))
+                .customerId(newCustomer2.getId())
                 .customer(newCustomer2)
                 .build());
     }

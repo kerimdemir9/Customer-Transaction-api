@@ -74,7 +74,7 @@ public class TransactionController {
 
     @RequestMapping(value = "/v1/transactions/find_all_by_customer_created_before_created_after", method = RequestMethod.GET)
     private ResponseEntity<TransactionViewPagedData> getAllByCustomerAndCreatedBeforeAndCreatedAfterV1(
-            @RequestBody Customer customer  ,
+            @RequestBody Customer customer,
             @RequestParam(defaultValue = "") String createdBefore,
             @RequestParam(defaultValue = "") String createdAfter,
             @RequestParam(defaultValue = "0") int pageNo,
@@ -90,7 +90,7 @@ public class TransactionController {
                 new Date(tryParseLong(createdBefore, "createdBefore")),
                 new Date(tryParseLong(createdAfter, "createdAfter")), pageNo, pageSize, sortBy, SortDirection.of(sortDir));
 
-        log.info("result".concat(result.toString()));
+        log.info("result: ".concat(result.toString()));
 
         return ResponseEntity.ok(mapPaged(result));
     }
