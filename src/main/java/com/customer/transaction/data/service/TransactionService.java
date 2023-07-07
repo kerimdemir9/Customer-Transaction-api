@@ -5,6 +5,7 @@ import com.customer.transaction.data.model.Transaction;
 import com.customer.transaction.data.repository.TransactionRepository;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class TransactionService {
     final TransactionRepository transactionRepository;
 
@@ -72,11 +74,10 @@ public class TransactionService {
     public GenericPagedModel<Transaction> findAllByCustomerAndCreatedBeforeAndCreatedAfter(Customer customer, Date createdBefore, Date createdAfter, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)
-                    ? transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdBefore, createdAfter, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
-                    : transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdBefore, createdAfter, PageRequest.of(page, size, Sort.by(sortBy).descending()));
-            if(result.isEmpty())
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transaction between dates:".concat(createdBefore.toString()).concat(createdAfter.toString()).concat("of customer:").concat(customer.toString()));
+                    ? transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdAfter, createdBefore, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
+                    : transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdAfter, createdBefore, PageRequest.of(page, size, Sort.by(sortBy).descending()));
+            if(result.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transaction between dates: ".concat(createdBefore.toString()).concat(" | ").concat(createdAfter.toString()).concat(" of customer: ").concat(customer.toString()));
             }
             return GenericPagedModel.<Transaction>builder()
                     .totalElements(result.getTotalElements())
@@ -94,6 +95,7 @@ public class TransactionService {
             if(transaction.getCustomer().getId() == null || transaction.getCustomer().getId() < 1) {
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Customer id doesn't exists");
             }
+            log.info("Transaction saved: ". concat(transaction.toString()));
             return transactionRepository.save(transaction);
         } catch (final DataIntegrityViolationException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
@@ -126,4 +128,11 @@ public class TransactionService {
         }
     }
 
+    public void hardDeleteAll() {
+        try {
+            transactionRepository.deleteAll();
+        } catch (final DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

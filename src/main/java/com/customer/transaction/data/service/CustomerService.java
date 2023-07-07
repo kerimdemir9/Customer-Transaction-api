@@ -125,7 +125,7 @@ public class CustomerService {
         try {
             val result = customerRepository.findById(id);
             if(result.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "customerId:".concat(id.toString()));
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No customer with id: ".concat(id.toString()));
             }
             return result.get();
         }

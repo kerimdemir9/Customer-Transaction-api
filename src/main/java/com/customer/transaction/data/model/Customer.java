@@ -2,10 +2,12 @@ package com.customer.transaction.data.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
 @Getter
 @Setter

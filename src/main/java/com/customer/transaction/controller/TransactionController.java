@@ -1,18 +1,20 @@
 package com.customer.transaction.controller;
 
-import com.customer.transaction.controller.View.CustomerView;
-import com.customer.transaction.controller.View.PagedData;
+import com.customer.transaction.controller.View.TransactionViewPagedData;
 import com.customer.transaction.controller.View.TransactionView;
 import com.customer.transaction.data.model.Customer;
 import com.customer.transaction.data.model.Transaction;
+import com.customer.transaction.data.service.CustomerService;
 import com.customer.transaction.data.service.TransactionService;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -25,9 +27,12 @@ import static com.customer.transaction.controller.util.Parsers.tryParseLong;
 public class TransactionController {
 
     final TransactionService transactionService;
+    final CustomerService customerService;
 
-    public TransactionController(TransactionService transactionService) {
+    @Autowired
+    public TransactionController(TransactionService transactionService, CustomerService customerService) {
         this.transactionService = transactionService;
+        this.customerService = customerService;
     }
 
     @RequestMapping(value = "/v1/transactions/{id}", method = RequestMethod.GET)
@@ -40,7 +45,7 @@ public class TransactionController {
     }
 
     @RequestMapping(value = "/v1/transactions/find_all", method = RequestMethod.GET)
-    private ResponseEntity<PagedData<TransactionView>> getAllTransactionsV1(
+    private ResponseEntity<TransactionViewPagedData> getAllTransactionsV1(
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -53,7 +58,7 @@ public class TransactionController {
     }
 
     @RequestMapping(value = "/v1/transactions/find_all_by_customer", method = RequestMethod.GET)
-    private ResponseEntity<PagedData<TransactionView>> getAllTransactionsByCustomerV1(
+    private ResponseEntity<TransactionViewPagedData> getAllTransactionsByCustomerV1(
             @RequestBody Customer customer,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -67,18 +72,17 @@ public class TransactionController {
     }
 
 
-    // TODO check its functionality -> it doesn't work (i couldn't make it work)
     @RequestMapping(value = "/v1/transactions/find_all_by_customer_created_before_created_after", method = RequestMethod.GET)
-    private ResponseEntity<PagedData<TransactionView>> getAllByCustomerAndCreatedBeforeAndCreatedAfterV1(
-            @RequestBody Customer customer,
-            @RequestParam(defaultValue = "2023-07-05 23:00:52") String createdBefore,
-            @RequestParam(defaultValue = "2023-07-05 00:00:52") String createdAfter,
+    private ResponseEntity<TransactionViewPagedData> getAllByCustomerAndCreatedBeforeAndCreatedAfterV1(
+            @RequestBody Customer customer  ,
+            @RequestParam(defaultValue = "") String createdBefore,
+            @RequestParam(defaultValue = "") String createdAfter,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        log.info("Calling: getAllByCustomerAndCreatedBeforeAndCreatedAfterV1 >> Customer fullName: "
-                .concat(customer.getFullName())
+        log.info("Calling: getAllByCustomerAndCreatedBeforeAndCreatedAfterV1 >> Customer: "
+                .concat(customer.toString())
                 .concat(" | Created Before: ").concat(createdBefore)
                 .concat(" | Created After: ").concat(createdAfter));
 
@@ -96,12 +100,17 @@ public class TransactionController {
     private ResponseEntity<TransactionView> saveTransactionV1(@RequestBody Transaction transaction) {
         log.info("Calling: saveTransactionV1 >> ".concat(transaction.toString()));
 
+
+        Customer customer = customerService.findById(transaction.getCustomerId());
+
+
         val saved = transactionService.save(Transaction
                 .builder()
                 .id(transaction.getId())
                 .created(transaction.getCreated())
                 .amount(transaction.getAmount())
-                .customer(transaction.getCustomer())
+                .customerId(transaction.getCustomerId())
+                .customer(customer)
                 .build());
 
         return ResponseEntity.ok(mapTransactionToTransactionView(saved));
@@ -117,8 +126,9 @@ public class TransactionController {
     }
 
 
-    private PagedData<TransactionView> mapPaged(GenericPagedModel<Transaction> transactions) {
-        return PagedData.<TransactionView>builder()
+    private TransactionViewPagedData mapPaged(GenericPagedModel<Transaction> transactions) {
+        return TransactionViewPagedData
+                .builder()
                 .totalElements(transactions.getTotalElements())
                 .totalPages(transactions.getTotalPages())
                 .numberOfElements(transactions.getNumberOfElements())

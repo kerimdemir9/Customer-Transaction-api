@@ -10,9 +10,9 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagedData<T> {
+public class TransactionViewPagedData {
     private long totalElements;
     private int totalPages;
     private int numberOfElements;
-    private List<T> content;
+    private List<TransactionView> content;
 }

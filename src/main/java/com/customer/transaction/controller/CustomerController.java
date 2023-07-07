@@ -1,30 +1,29 @@
 package com.customer.transaction.controller;
 
 import com.customer.transaction.controller.View.CustomerView;
-import com.customer.transaction.controller.View.PagedData;
+import com.customer.transaction.controller.View.CustomerViewPagedData;
 import com.customer.transaction.data.service.CustomerService;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.customer.transaction.data.model.Customer;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 import static com.customer.transaction.controller.util.Parsers.tryParseDouble;
 import static com.customer.transaction.controller.util.Parsers.tryParseInteger;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Stream.builder;
 
 @RestController
 @Slf4j
 public class CustomerController {
     final CustomerService customerService;
 
+    @Autowired
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
@@ -39,7 +38,7 @@ public class CustomerController {
     }
 
     @RequestMapping(value = "/v1/customers/find_all_by_balance_between/{min}&{max}", method = RequestMethod.GET)
-    private ResponseEntity<PagedData<CustomerView>> getAllCustomersByBalanceBetween(
+    private ResponseEntity<CustomerViewPagedData> getAllCustomersByBalanceBetween(
             @PathVariable String min, @PathVariable String max,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -54,7 +53,7 @@ public class CustomerController {
     }
 
     @RequestMapping(value = "v1/customers/find_all", method = RequestMethod.GET)
-    private ResponseEntity<PagedData<CustomerView>> getAllCustomersV1(
+    private ResponseEntity<CustomerViewPagedData> getAllCustomersV1(
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -68,7 +67,7 @@ public class CustomerController {
 
 
     @RequestMapping(value = "/v1/customers/find_all_by_full_name/{fullName}", method = RequestMethod.GET)
-    private ResponseEntity<PagedData<CustomerView>> getAllCustomersByFullName(
+    private ResponseEntity<CustomerViewPagedData> getAllCustomersByFullName(
             @PathVariable String fullName,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -107,8 +106,9 @@ public class CustomerController {
     }
 
 
-    private PagedData<CustomerView> mapPaged(GenericPagedModel<Customer> customers) {
-        return PagedData.<CustomerView>builder()
+    private CustomerViewPagedData mapPaged(GenericPagedModel<Customer> customers) {
+        return CustomerViewPagedData
+                .builder()
                 .totalElements(customers.getTotalElements())
                 .totalPages(customers.totalPages)
                 .numberOfElements(customers.getNumberOfElements())

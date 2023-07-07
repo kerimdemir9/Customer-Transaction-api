@@ -7,11 +7,17 @@ import com.customer.transaction.util.SortDirection;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Collection;
+
 import static org.junit.Assert.*;
 
 public class CustomerServiceIntegrationTests extends TestBase{
+
     private static Customer newCustomer1;
+
     private static Customer newCustomer2;
 
     public void insertNewCustomer1() {
@@ -97,15 +103,38 @@ public class CustomerServiceIntegrationTests extends TestBase{
                 .findAll(0, 10, "id", SortDirection.Descending));
     }
 
+    public void testNames(GenericPagedModel<Customer> customer, int testNum) {
+        assertFalse(customer.getContent().isEmpty());
+
+        if(testNum == 1) {
+            assertTrue(customer.getContent()
+                    .stream()
+                    .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+            assertFalse(customer.getContent()
+                    .stream()
+                    .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+        }
+        else {
+            assertFalse(customer.getContent()
+                    .stream()
+                    .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+            assertTrue(customer.getContent()
+                    .stream()
+                    .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+        }
+    }
+
     @Test
     public void find_all_customers_by_full_name_test() {
         insertNewCustomer1();
         insertNewCustomer2();
 
-        testCollection(customerService
-                .findAllByFullName("test1_full_name", 0, 10, "created",
-                        SortDirection.Descending));
+        testNames(customerService.findAllByFullName("test1_full_name", 0, 10, "id",
+                        SortDirection.Descending), 1);
+        testNames(customerService.findAllByFullName("test2_full_name", 0, 10, "id",
+                SortDirection.Descending), 2);
     }
+
 
     @Test
     public void find_all_customers_by_by_balance_between_test() {
