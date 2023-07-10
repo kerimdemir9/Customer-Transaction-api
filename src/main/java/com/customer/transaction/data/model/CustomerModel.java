@@ -12,7 +12,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @Table(name = "customer", schema = "bank")
 @Entity
-public class Customer {
+public class CustomerModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -29,5 +29,5 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference
     @ToString.Exclude
-    private Collection<Transaction> transactions;
+    private Collection<TransactionModel> transactions;
 }

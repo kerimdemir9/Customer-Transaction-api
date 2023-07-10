@@ -2,6 +2,7 @@ package com.customer.transaction.controller;
 
 import com.customer.transaction.controller.View.CustomerView;
 import com.customer.transaction.controller.View.CustomerViewPagedData;
+import com.customer.transaction.data.model.CustomerModel;
 import com.customer.transaction.data.service.CustomerService;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
@@ -10,7 +11,6 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.customer.transaction.data.model.Customer;
 
 import java.util.Collection;
 import java.util.List;
@@ -85,7 +85,7 @@ public class CustomerController {
     private ResponseEntity<CustomerView> saveCustomerV1(@RequestBody CustomerView customer) {
         log.info("Calling: saveCustomerV1 >> ".concat(customer.toString()));
 
-        val saved = customerService.save(Customer
+        val saved = customerService.save(CustomerModel
                 .builder()
                 .id(customer.getId())
                 .fullName(customer.getFullName())
@@ -106,7 +106,7 @@ public class CustomerController {
     }
 
 
-    private CustomerViewPagedData mapPaged(GenericPagedModel<Customer> customers) {
+    private CustomerViewPagedData mapPaged(GenericPagedModel<CustomerModel> customers) {
         return CustomerViewPagedData
                 .builder()
                 .totalElements(customers.getTotalElements())
@@ -116,18 +116,18 @@ public class CustomerController {
                 .build();
     }
 
-    private List<CustomerView> mapCustomersCollectiontoCustomerViewList(Collection<Customer> customers) {
-        return customers.stream().map(this::mapCustomerToCustomerView).toList();
+    private List<CustomerView> mapCustomersCollectiontoCustomerViewList(Collection<CustomerModel> customerModels) {
+        return customerModels.stream().map(this::mapCustomerToCustomerView).toList();
     }
 
 
 
-    private CustomerView mapCustomerToCustomerView(Customer customer) {
+    private CustomerView mapCustomerToCustomerView(CustomerModel customerModel) {
         return CustomerView.builder()
-                .phoneNumber(customer.getPhoneNumber())
-                .balance(customer.getBalance())
-                .fullName(customer.getFullName())
-                .id(customer.getId())
+                .phoneNumber(customerModel.getPhoneNumber())
+                .balance(customerModel.getBalance())
+                .fullName(customerModel.getFullName())
+                .id(customerModel.getId())
                 .build();
     }
 }

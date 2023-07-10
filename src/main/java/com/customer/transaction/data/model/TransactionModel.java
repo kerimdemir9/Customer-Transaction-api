@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Table(name = "transaction", schema = "bank")
 @Entity
-public class Transaction {
+public class TransactionModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -29,7 +29,7 @@ public class Transaction {
 
     @ManyToOne
     @JsonBackReference
-    private Customer customer;
+    private CustomerModel customer;
 }
 
 

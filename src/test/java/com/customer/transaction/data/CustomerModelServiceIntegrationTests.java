@@ -1,6 +1,6 @@
 package com.customer.transaction.data;
 
-import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.model.CustomerModel;
 import com.customer.transaction.TestBase;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
@@ -12,14 +12,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.Assert.*;
 
-public class CustomerServiceIntegrationTests extends TestBase{
+public class CustomerModelServiceIntegrationTests extends TestBase{
 
-    private static Customer newCustomer1;
+    private static CustomerModel newCustomer1Model;
 
-    private static Customer newCustomer2;
+    private static CustomerModel newCustomer2Model;
 
     public void insertNewCustomer1() {
-        newCustomer1 = customerService.save(Customer
+        newCustomer1Model = customerService.save(CustomerModel
                 .builder()
                 .fullName("test1_full_name")
                 .phoneNumber("11111111111")
@@ -28,7 +28,7 @@ public class CustomerServiceIntegrationTests extends TestBase{
     }
 
     public void insertNewCustomer2() {
-        newCustomer2 = customerService.save(Customer
+        newCustomer2Model = customerService.save(CustomerModel
                 .builder()
                 .fullName("test2_full_name")
                 .phoneNumber("22222222222")
@@ -36,16 +36,16 @@ public class CustomerServiceIntegrationTests extends TestBase{
                 .build());
     }
 
-    public void testCollection(GenericPagedModel<Customer> customer) {
+    public void testCollection(GenericPagedModel<CustomerModel> customer) {
         assertFalse(customer.getContent().isEmpty());
 
         assertTrue(customer.getContent()
                 .stream()
-                .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+                .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
 
         assertTrue(customer.getContent()
                 .stream()
-                .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+                .anyMatch(c -> c.getId().equals(newCustomer2Model.getId())));
     }
 
     @Before
@@ -56,38 +56,38 @@ public class CustomerServiceIntegrationTests extends TestBase{
     @Test
     public void insert_customer_test() {
         insertNewCustomer1();
-        assertNotNull(newCustomer1);
+        assertNotNull(newCustomer1Model);
     }
 
     @Test
     public void update_customer_test() {
         insertNewCustomer1();
 
-        val updated = customerService.save(Customer
+        val updated = customerService.save(CustomerModel
                 .builder()
-                .id(newCustomer1.getId())
+                .id(newCustomer1Model.getId())
                 .fullName("new full name")
                 .phoneNumber("55555555555")
                 .balance(20.0)
                 .build());
 
-        assertEquals(newCustomer1.getId(), updated.getId());
-        assertNotEquals(newCustomer1.getFullName(), updated.getFullName());
-        assertNotEquals(newCustomer1.getPhoneNumber(), updated.getPhoneNumber());
-        assertNotEquals(newCustomer1.getBalance(), updated.getBalance());
+        assertEquals(newCustomer1Model.getId(), updated.getId());
+        assertNotEquals(newCustomer1Model.getFullName(), updated.getFullName());
+        assertNotEquals(newCustomer1Model.getPhoneNumber(), updated.getPhoneNumber());
+        assertNotEquals(newCustomer1Model.getBalance(), updated.getBalance());
     }
 
     @Test
     public void find_customer_by_id_test() {
         insertNewCustomer1();
 
-        val found = customerService.findById(newCustomer1.getId());
+        val found = customerService.findById(newCustomer1Model.getId());
 
         assertNotNull(found);
-        assertEquals(newCustomer1.getId(), found.getId());
-        assertEquals(newCustomer1.getFullName(), found.getFullName());
-        assertEquals(newCustomer1.getPhoneNumber(), found.getPhoneNumber());
-        assertEquals(newCustomer1.getBalance(), found.getBalance());
+        assertEquals(newCustomer1Model.getId(), found.getId());
+        assertEquals(newCustomer1Model.getFullName(), found.getFullName());
+        assertEquals(newCustomer1Model.getPhoneNumber(), found.getPhoneNumber());
+        assertEquals(newCustomer1Model.getBalance(), found.getBalance());
     }
 
     @Test
@@ -99,24 +99,24 @@ public class CustomerServiceIntegrationTests extends TestBase{
                 .findAll(0, 10, "id", SortDirection.Descending));
     }
 
-    public void testNames(GenericPagedModel<Customer> customer, int testNum) {
+    public void testNames(GenericPagedModel<CustomerModel> customer, int testNum) {
         assertFalse(customer.getContent().isEmpty());
 
         if(testNum == 1) {
             assertTrue(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
             assertFalse(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer2Model.getId())));
         }
         else {
             assertFalse(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
             assertTrue(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer2Model.getId())));
         }
     }
 
@@ -149,9 +149,9 @@ public class CustomerServiceIntegrationTests extends TestBase{
     public void delete_costumer_test() {
         insertNewCustomer1();
 
-        val deleted = customerService.hardDelete(newCustomer1.getId());
+        val deleted = customerService.hardDelete(newCustomer1Model.getId());
 
-        assertEquals(newCustomer1.getId(), deleted.getId());
+        assertEquals(newCustomer1Model.getId(), deleted.getId());
 
         customerService.findById(deleted.getId());
     }

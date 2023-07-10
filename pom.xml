@@ -8,11 +8,11 @@
 		<version>2.7.13</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.customer.transaction</groupId>
-	<artifactId>customer.transaction</artifactId>
+	<groupId>com.customerModel.transactionModel</groupId>
+	<artifactId>customerModel.transactionModel</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>customer.transaction</name>
-	<description>customer and transaction</description>
+	<name>customerModel.transactionModel</name>
+	<description>customerModel and transactionModel</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

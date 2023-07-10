@@ -4,7 +4,7 @@ import com.customer.transaction.RestConfiguration;
 import com.customer.transaction.TestBase;
 import com.customer.transaction.controller.View.CustomerView;
 import com.customer.transaction.controller.View.CustomerViewPagedData;
-import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.model.CustomerModel;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,12 +18,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 
-public class CustomerControllerIntegrationTests extends TestBase {
-    private static Customer newCustomer1;
-    private static Customer newCustomer2;
+public class CustomerModelControllerIntegrationTests extends TestBase {
+    private static CustomerModel newCustomer1Model;
+    private static CustomerModel newCustomer2Model;
 
     public void insertNewCustomer1() {
-        newCustomer1 = customerService.save(Customer
+        newCustomer1Model = customerService.save(CustomerModel
                 .builder()
                 .id(1)
                 .fullName("test1_full_name")
@@ -33,7 +33,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
     }
 
     public void insertNewCustomer2() {
-        newCustomer2 = customerService.save(Customer
+        newCustomer2Model = customerService.save(CustomerModel
                 .builder()
                 .id(2)
                 .fullName("test2_full_name")
@@ -50,11 +50,11 @@ public class CustomerControllerIntegrationTests extends TestBase {
 
         assertTrue(customer.getContent()
                 .stream()
-                .anyMatch(c -> String.valueOf(c.getId()).equals(newCustomer1.getId().toString())));
+                .anyMatch(c -> String.valueOf(c.getId()).equals(newCustomer1Model.getId().toString())));
 
         assertTrue(customer.getContent()
                 .stream()
-                .anyMatch(c -> String.valueOf(c.getId()).equals(newCustomer2.getId().toString())));
+                .anyMatch(c -> String.valueOf(c.getId()).equals(newCustomer2Model.getId().toString())));
     }
 
     @Before
@@ -68,14 +68,14 @@ public class CustomerControllerIntegrationTests extends TestBase {
         val url = RestConfiguration.LOCALHOST
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/")
-                .concat(newCustomer1.getId().toString());
+                .concat(newCustomer1Model.getId().toString());
         val response = restTemplate.getForEntity(url, CustomerView.class);
         assertTrue(StringUtils.isNotBlank(response.toString()));
         assertNotNull(response.getBody());
 
-        assertEquals(String.valueOf(newCustomer1.getId()), String.valueOf(response.getBody().getId()));
-        assertEquals(newCustomer1.getFullName(), response.getBody().getFullName());
-        assertEquals(newCustomer1.getPhoneNumber(), response.getBody().getPhoneNumber());
+        assertEquals(String.valueOf(newCustomer1Model.getId()), String.valueOf(response.getBody().getId()));
+        assertEquals(newCustomer1Model.getFullName(), response.getBody().getFullName());
+        assertEquals(newCustomer1Model.getPhoneNumber(), response.getBody().getPhoneNumber());
     }
 
     @Test
@@ -120,18 +120,18 @@ public class CustomerControllerIntegrationTests extends TestBase {
         if(testNum == 1) {
             assertTrue(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
             assertFalse(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer2Model.getId())));
         }
         else {
             assertFalse(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
             assertTrue(customer.getContent()
                     .stream()
-                    .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
+                    .anyMatch(c -> c.getId().equals(newCustomer2Model.getId())));
         }
     }
 
@@ -214,16 +214,16 @@ public class CustomerControllerIntegrationTests extends TestBase {
         val url = RestConfiguration.LOCALHOST
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/delete/")
-                .concat(newCustomer1.getId().toString());
+                .concat(newCustomer1Model.getId().toString());
 
         val response = restTemplate.exchange(url, HttpMethod.DELETE, null, CustomerView.class);
 
         assertTrue(StringUtils.isNotBlank(response.toString()));
         assertNotNull(response.getBody());
-        assertEquals(String.valueOf(response.getBody().getId()), (newCustomer1.getId().toString()));
+        assertEquals(String.valueOf(response.getBody().getId()), (newCustomer1Model.getId().toString()));
 
         try {
-            customerService.findById(newCustomer1.getId());
+            customerService.findById(newCustomer1Model.getId());
         } catch (final ResponseStatusException ex) {
             assertThat(ex.getMessage(), containsString("404"));
             assertThat(ex.getMessage(), containsString(String.valueOf(response.getBody().getId())));

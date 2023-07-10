@@ -1,8 +1,8 @@
 package com.customer.transaction.data;
 
 import com.customer.transaction.TestBase;
-import com.customer.transaction.data.model.Transaction;
-import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.model.CustomerModel;
+import com.customer.transaction.data.model.TransactionModel;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
 import lombok.val;
@@ -15,15 +15,15 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 
-public class TransactionServiceIntegrationTests extends TestBase {
-    private static Transaction newTransaction1;
-    private static Transaction newTransaction2;
+public class TransactionModelServiceIntegrationTests extends TestBase {
+    private static TransactionModel newTransaction1Model;
+    private static TransactionModel newTransaction2Model;
 
-    private static Customer newCustomer1;
-    private static Customer newCustomer2;
+    private static CustomerModel newCustomer1Model;
+    private static CustomerModel newCustomer2Model;
 
     private void insertNewCustomer1() {
-        newCustomer1 = customerService.save(Customer
+        newCustomer1Model = customerService.save(CustomerModel
                 .builder()
                 .fullName("test1_full_name")
                 .phoneNumber("11111111111")
@@ -32,7 +32,7 @@ public class TransactionServiceIntegrationTests extends TestBase {
     }
 
     public void insertNewCustomer2() {
-        newCustomer2 = customerService.save(Customer
+        newCustomer2Model = customerService.save(CustomerModel
                 .builder()
                 .fullName("test2_full_name")
                 .phoneNumber("22222222222")
@@ -42,47 +42,47 @@ public class TransactionServiceIntegrationTests extends TestBase {
 
 
     public void insertNewTransaction1() {
-        newTransaction1 = transactionService.save(Transaction
+        newTransaction1Model = transactionService.save(TransactionModel
                 .builder()
                 .amount(5000.0)
-                .customer(newCustomer1)
+                .customer(newCustomer1Model)
                 .build());
     }
 
     public void insertNewTransaction2() {
-        newTransaction2 = transactionService.save(Transaction
+        newTransaction2Model = transactionService.save(TransactionModel
                 .builder()
                 .amount(5000.0)
-                .customer(newCustomer2)
+                .customer(newCustomer2Model)
                 .build());
     }
 
-    public void testCollection(GenericPagedModel<Transaction> transaction) {
+    public void testCollection(GenericPagedModel<TransactionModel> transaction) {
         assertFalse(transaction.getContent().isEmpty());
 
         assertTrue(transaction.getContent()
                 .stream()
-                .anyMatch(t -> t.getId().equals(newTransaction1.getId())));
+                .anyMatch(t -> t.getId().equals(newTransaction1Model.getId())));
 
         assertTrue(transaction.getContent()
                 .stream()
-                .anyMatch(t -> t.getId().equals(newTransaction2.getId())));
+                .anyMatch(t -> t.getId().equals(newTransaction2Model.getId())));
     }
 
-    public void testCollectionOfOne(GenericPagedModel<Transaction> transaction) {
+    public void testCollectionOfOne(GenericPagedModel<TransactionModel> transaction) {
         assertFalse(transaction.getContent().isEmpty());
 
         assertTrue(transaction.getContent()
                 .stream()
-                .allMatch(t -> t.getCustomer().getId().equals(newCustomer1.getId())));
+                .allMatch(t -> t.getCustomer().getId().equals(newCustomer1Model.getId())));
     }
 
-    public void testCollectionOfTwo(GenericPagedModel<Transaction> transaction) {
+    public void testCollectionOfTwo(GenericPagedModel<TransactionModel> transaction) {
         assertFalse(transaction.getContent().isEmpty());
 
         assertTrue(transaction.getContent()
                 .stream()
-                .allMatch(t -> t.getCustomer().getId().equals(newCustomer2.getId())));
+                .allMatch(t -> t.getCustomer().getId().equals(newCustomer2Model.getId())));
     }
 
     @Before
@@ -95,7 +95,7 @@ public class TransactionServiceIntegrationTests extends TestBase {
     public void insert_transaction_test() {
         insertNewCustomer1();
         insertNewTransaction1();
-        assertNotNull(newTransaction1);
+        assertNotNull(newTransaction1Model);
     }
 
     @Test
@@ -103,15 +103,15 @@ public class TransactionServiceIntegrationTests extends TestBase {
         insertNewCustomer1();
         insertNewTransaction1();
 
-        val updated = transactionService.save(Transaction
+        val updated = transactionService.save(TransactionModel
                 .builder()
-                .id(newTransaction1.getId())
-                .customer(newCustomer1)
+                .id(newTransaction1Model.getId())
+                .customer(newCustomer1Model)
                 .amount(800.0)
                 .build());
 
-        assertEquals(newTransaction1.getId(), updated.getId());
-        assertNotEquals(newTransaction1.getAmount(), updated.getAmount());
+        assertEquals(newTransaction1Model.getId(), updated.getId());
+        assertNotEquals(newTransaction1Model.getAmount(), updated.getAmount());
     }
 
     @Test
@@ -119,12 +119,12 @@ public class TransactionServiceIntegrationTests extends TestBase {
         insertNewCustomer1();
         insertNewTransaction1();
 
-        val found = transactionService.findById(newTransaction1.getId());
+        val found = transactionService.findById(newTransaction1Model.getId());
 
         assertNotNull(found);
-        assertEquals(newTransaction1.getId(), found.getId());
-        assertEquals(newTransaction1.getAmount(), found.getAmount());
-        assertEquals(newTransaction1.getCustomer().getId(), found.getCustomer().getId());
+        assertEquals(newTransaction1Model.getId(), found.getId());
+        assertEquals(newTransaction1Model.getAmount(), found.getAmount());
+        assertEquals(newTransaction1Model.getCustomer().getId(), found.getCustomer().getId());
     }
 
     @Test
@@ -146,8 +146,8 @@ public class TransactionServiceIntegrationTests extends TestBase {
         insertNewTransaction1();
         insertNewTransaction2();
 
-        val result1 = transactionService.findAllByCustomer(newCustomer1,0, 10, "id", SortDirection.Descending);
-        val result2 = transactionService.findAllByCustomer(newCustomer2,0, 10, "id", SortDirection.Descending);
+        val result1 = transactionService.findAllByCustomer(newCustomer1Model,0, 10, "id", SortDirection.Descending);
+        val result2 = transactionService.findAllByCustomer(newCustomer2Model,0, 10, "id", SortDirection.Descending);
 
 
         assertNotNull(result1);
@@ -169,8 +169,8 @@ public class TransactionServiceIntegrationTests extends TestBase {
         val yesterday = new Date(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli());
         val tomorrow = new Date(Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli());
 
-        val res1 = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(newCustomer1, yesterday, tomorrow , 0, 10, "id", SortDirection.Descending);
-        val res2 = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(newCustomer2, yesterday, tomorrow , 0, 10, "id", SortDirection.Descending);
+        val res1 = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(newCustomer1Model, yesterday, tomorrow , 0, 10, "id", SortDirection.Descending);
+        val res2 = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(newCustomer2Model, yesterday, tomorrow , 0, 10, "id", SortDirection.Descending);
 
         testCollectionOfOne(res1);
         testCollectionOfTwo(res2);
@@ -181,9 +181,9 @@ public class TransactionServiceIntegrationTests extends TestBase {
         insertNewCustomer1();
         insertNewTransaction1();
 
-        val deleted = transactionService.hardDelete(newTransaction1.getId());
+        val deleted = transactionService.hardDelete(newTransaction1Model.getId());
 
-        assertEquals(newTransaction1.getId(), deleted.getId());
+        assertEquals(newTransaction1Model.getId(), deleted.getId());
 
         transactionService.findById(deleted.getId());
     }

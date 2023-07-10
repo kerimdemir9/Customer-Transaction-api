@@ -1,7 +1,7 @@
 package com.customer.transaction.controller;
 import com.customer.transaction.controller.View.TransactionViewPagedData;
 import com.customer.transaction.controller.View.TransactionView;
-import com.customer.transaction.data.model.Transaction;
+import com.customer.transaction.data.model.TransactionModel;
 import com.customer.transaction.data.service.CustomerService;
 import com.customer.transaction.data.service.TransactionService;
 import com.customer.transaction.data.util.GenericPagedModel;
@@ -105,7 +105,7 @@ public class TransactionController {
 
         val customer = customerService.findById(transaction.getCustomerId());
 
-        val saved = transactionService.save(Transaction
+        val saved = transactionService.save(TransactionModel
                 .builder()
                 .id(transaction.getId())
                 .created(transaction.getCreated())
@@ -126,7 +126,7 @@ public class TransactionController {
     }
 
 
-    private TransactionViewPagedData mapPaged(GenericPagedModel<Transaction> transactions) {
+    private TransactionViewPagedData mapPaged(GenericPagedModel<TransactionModel> transactions) {
         return TransactionViewPagedData
                 .builder()
                 .totalElements(transactions.getTotalElements())
@@ -136,18 +136,18 @@ public class TransactionController {
                 .build();
     }
 
-    private List<TransactionView> mapTransactionsCollectiontoTransactionViewList(Collection<Transaction> transactions) {
-        return transactions.stream().map(this::mapTransactionToTransactionView).toList();
+    private List<TransactionView> mapTransactionsCollectiontoTransactionViewList(Collection<TransactionModel> transactionModels) {
+        return transactionModels.stream().map(this::mapTransactionToTransactionView).toList();
     }
 
 
 
-    private TransactionView mapTransactionToTransactionView(Transaction transaction) {
+    private TransactionView mapTransactionToTransactionView(TransactionModel transactionModel) {
         return TransactionView.builder()
-                .amount(transaction.getAmount())
-                .created(transaction.getCreated())
-                .id(transaction.getId())
-                .customerId(transaction.getCustomer().getId())
+                .amount(transactionModel.getAmount())
+                .created(transactionModel.getCreated())
+                .id(transactionModel.getId())
+                .customerId(transactionModel.getCustomer().getId())
                 .build();
     }
 

@@ -1,5 +1,5 @@
 package com.customer.transaction.data.service;
-import com.customer.transaction.data.model.Customer;
+import com.customer.transaction.data.model.CustomerModel;
 import com.customer.transaction.data.repository.CustomerRepository;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.data.validator.CustomerValidator;
@@ -29,11 +29,11 @@ public class CustomerService {
         this.customerValidator = customerValidator;
     }
 
-    public Customer findById(Integer id) {
+    public CustomerModel findById(Integer id) {
         return getCustomer(id);
     }
 
-    public GenericPagedModel<Customer> findAll(int page, int size, String sortBy, SortDirection sortDirection) {
+    public GenericPagedModel<CustomerModel> findAll(int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)
                     ? customerRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy).ascending()))
@@ -42,7 +42,7 @@ public class CustomerService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No data");
             }
 
-            return GenericPagedModel.<Customer>builder()
+            return GenericPagedModel.<CustomerModel>builder()
                     .totalElements(result.getTotalElements())
                     .numberOfElements(result.getNumberOfElements())
                     .totalPages(result.getTotalPages())
@@ -54,7 +54,7 @@ public class CustomerService {
     }
 
 
-    public GenericPagedModel<Customer> findAllCustomersByBalanceBetween(double minBalance, double maxBalance, int page, int size, String sortBy, SortDirection sortDirection) {
+    public GenericPagedModel<CustomerModel> findAllCustomersByBalanceBetween(double minBalance, double maxBalance, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)
                     ? customerRepository.findAllCustomersByBalanceBetween(minBalance, maxBalance, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
@@ -63,7 +63,7 @@ public class CustomerService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Min:".concat(String.valueOf(minBalance)).concat(" Max:").concat(String.valueOf(maxBalance)));
             }
-            return GenericPagedModel.<Customer>builder()
+            return GenericPagedModel.<CustomerModel>builder()
                     .totalElements(result.getTotalElements())
                     .numberOfElements(result.getNumberOfElements())
                     .totalPages(result.getTotalPages())
@@ -75,7 +75,7 @@ public class CustomerService {
     }
 
 
-    public GenericPagedModel<Customer> findAllByFullName(String fullName, int page, int size, String sortBy, SortDirection sortDirection) {
+    public GenericPagedModel<CustomerModel> findAllByFullName(String fullName, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)
                     ? customerRepository.findAllByFullName(fullName, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
@@ -84,7 +84,7 @@ public class CustomerService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "fullName:".concat(fullName));
             }
-            return GenericPagedModel.<Customer>builder()
+            return GenericPagedModel.<CustomerModel>builder()
                     .totalElements(result.getTotalElements())
                     .numberOfElements(result.getNumberOfElements())
                     .totalPages(result.getTotalPages())
@@ -96,20 +96,20 @@ public class CustomerService {
     }
 
 
-    public Customer save(Customer customer) {
+    public CustomerModel save(CustomerModel customerModel) {
         try {
-            customerValidator.validate(customer);
-            if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
+            customerValidator.validate(customerModel);
+            if (customerRepository.existsByPhoneNumber(customerModel.getPhoneNumber())) {
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,
-                        "phoneNumber: ".concat(customer.getPhoneNumber()).concat(" already exists"));
+                        "phoneNumber: ".concat(customerModel.getPhoneNumber()).concat(" already exists"));
             }
-            return customerRepository.save(customer);
+            return customerRepository.save(customerModel);
         } catch (final DataIntegrityViolationException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex));
         }
     }
 
-    public Customer hardDelete(Integer id) {
+    public CustomerModel hardDelete(Integer id) {
         try {
             val customerToHardDelete = getCustomer(id);
 
@@ -123,7 +123,7 @@ public class CustomerService {
     }
 
 
-    private Customer getCustomer(Integer id) {
+    private CustomerModel getCustomer(Integer id) {
         try {
             if(Objects.isNull(id)) {
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "customerId must not be null");

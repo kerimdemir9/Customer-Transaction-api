@@ -1,8 +1,8 @@
 package com.customer.transaction.data.validator;
 
-import com.customer.transaction.data.model.Transaction;
+import com.customer.transaction.data.model.TransactionModel;
 
 public interface TransactionValidator {
-    void validate(Transaction model);
+    void validate(TransactionModel model);
 
 }
