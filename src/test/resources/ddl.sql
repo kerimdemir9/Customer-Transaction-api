@@ -29,3 +29,15 @@ Create table transaction
 	FOREIGN KEY (customer_id) REFERENCES customer (id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+Create table customer_log
+(
+	id INT not null auto_increment primary key,
+    customer_id INT NOT NULL,
+    old_version JSON,
+    new_version JSON not null,
+    log_type varchar(50) not null,
+    created DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (customer_id) REFERENCES customer (id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);

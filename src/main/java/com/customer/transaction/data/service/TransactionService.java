@@ -106,9 +106,7 @@ public class TransactionService {
     public TransactionModel save(TransactionModel transactionModel) {
         try {
             transactionValidator.validate(transactionModel);
-            if(transactionModel.getCustomer().getId() == null || transactionModel.getCustomer().getId() < 1) {
-                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Customer id doesn't exists");
-            }
+
             log.info("Transaction saved: ". concat(transactionModel.toString()));
             return transactionRepository.save(transactionModel);
         } catch (final DataIntegrityViolationException ex) {
