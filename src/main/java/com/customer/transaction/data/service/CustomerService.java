@@ -1,5 +1,4 @@
 package com.customer.transaction.data.service;
-
 import com.customer.transaction.data.model.Customer;
 import com.customer.transaction.data.repository.CustomerRepository;
 import com.customer.transaction.data.util.GenericPagedModel;
@@ -14,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
+import java.util.Objects;
 
 
 @Service
@@ -126,6 +125,9 @@ public class CustomerService {
 
     private Customer getCustomer(Integer id) {
         try {
+            if(Objects.isNull(id)) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "customerId must not be null");
+            }
             val result = customerRepository.findById(id);
             if(result.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No customer with id: ".concat(id.toString()));

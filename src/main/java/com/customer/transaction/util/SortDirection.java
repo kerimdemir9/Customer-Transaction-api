@@ -1,10 +1,8 @@
 package com.customer.transaction.util;
-
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

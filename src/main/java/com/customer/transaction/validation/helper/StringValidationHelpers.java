@@ -1,6 +1,4 @@
 package com.customer.transaction.validation.helper;
-
-
 import org.apache.commons.lang3.StringUtils;
 import com.customer.transaction.validation.SimpleValidation;
 import com.customer.transaction.validation.Validation;

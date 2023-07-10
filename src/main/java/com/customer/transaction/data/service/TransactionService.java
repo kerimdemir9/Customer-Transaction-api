@@ -1,5 +1,4 @@
 package com.customer.transaction.data.service;
-
 import com.customer.transaction.data.model.Customer;
 import com.customer.transaction.data.model.Transaction;
 import com.customer.transaction.data.repository.CustomerRepository;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -131,6 +131,9 @@ public class TransactionService {
 
     private Transaction getTransaction(Integer id) {
         try {
+            if(Objects.isNull(id)) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "transactionId must not be null");
+            }
             val result = transactionRepository.findById(id);
             if(result.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "transactionId:".concat(id.toString()));

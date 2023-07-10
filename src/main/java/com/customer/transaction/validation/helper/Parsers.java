@@ -1,10 +1,5 @@
 package com.customer.transaction.validation.helper;
-
-import lombok.val;
-
 import java.util.Objects;
-import java.util.regex.Pattern;
-
 public class Parsers {
     public static boolean notValidUUID(String uuid) {
         if (Objects.isNull(uuid)) {

@@ -1,11 +1,7 @@
 package com.customer.transaction.validation.helper;
-
-
 import com.customer.transaction.validation.SimpleValidation;
 import com.customer.transaction.validation.Validation;
-
 import java.util.Objects;
-
 import static java.lang.String.format;
 
 public class IntegerValidationHelpers {

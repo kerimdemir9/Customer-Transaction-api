@@ -1,10 +1,7 @@
 package com.customer.transaction.data.model;
-
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import javax.persistence.*;
 import java.util.Date;
 

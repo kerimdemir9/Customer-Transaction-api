@@ -1,9 +1,6 @@
 package com.customer.transaction.controller;
-
-import com.customer.transaction.controller.View.CustomerView;
 import com.customer.transaction.controller.View.TransactionViewPagedData;
 import com.customer.transaction.controller.View.TransactionView;
-import com.customer.transaction.data.model.Customer;
 import com.customer.transaction.data.model.Transaction;
 import com.customer.transaction.data.service.CustomerService;
 import com.customer.transaction.data.service.TransactionService;
@@ -14,12 +11,9 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import static com.customer.transaction.controller.util.Parsers.tryParseInteger;
 import static com.customer.transaction.controller.util.Parsers.tryParseLong;

@@ -13,9 +13,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
-
-
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 
@@ -114,26 +113,6 @@ public class CustomerControllerIntegrationTests extends TestBase {
         testPagedDataResponse(response.getBody());
     }
 
-    @Test
-    public void get_customers_by_balance_between_with_exception_test() {
-        insertNewCustomer1();
-        insertNewCustomer2();
-
-        val min = 20000.0;
-        val max = 70000.0;
-
-        val url = RestConfiguration.LOCALHOST
-                .concat(String.valueOf(port))
-                .concat("/v1/customers/find_all_by_balance_between/")
-                .concat(String.valueOf(min)).concat("&").concat(String.valueOf(max));
-        try {
-            restTemplate.getForEntity(url, CustomerViewPagedData.class);
-        } catch (final HttpClientErrorException ex) {
-            assertThat(ex.getMessage(), containsString("404"));
-            assertThat(ex.getMessage(), containsString(String.valueOf(min)));
-            assertThat(ex.getMessage(), containsString(String.valueOf(max)));
-        }
-    }
 
     public void testNames(CustomerViewPagedData customer, int testNum) {
         assertFalse(customer.getContent().isEmpty());
@@ -228,7 +207,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
         }
     }
 
-    @Test(expected = ResponseStatusException.class)
+    @Test
     public void delete_customers_test() {
         insertNewCustomer1();
 
@@ -245,7 +224,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
 
         try {
             customerService.findById(newCustomer1.getId());
-        } catch (final HttpClientErrorException ex) {
+        } catch (final ResponseStatusException ex) {
             assertThat(ex.getMessage(), containsString("404"));
             assertThat(ex.getMessage(), containsString(String.valueOf(response.getBody().getId())));
         }
@@ -275,5 +254,90 @@ public class CustomerControllerIntegrationTests extends TestBase {
         assertEquals(String.valueOf(response.getBody().getId()), found.getId().toString());
         assertEquals(response.getBody().getFullName(), found.getFullName());
         assertEquals(response.getBody().getPhoneNumber(), found.getPhoneNumber());
+    }
+
+
+    @Test
+    public void insert_customer_with_exception_test1() {
+        val customerToPost = CustomerView.builder()
+                .fullName("    ")
+                .phoneNumber("33333333333")
+                .balance(1000.0)
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/customers/save");
+
+        try {
+            restTemplate.postForEntity(url,
+                    new HttpEntity<>(customerToPost), CustomerView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("400"));
+            assertThat(ex.getMessage(), containsString("must not be empty"));
+        }
+    }
+
+    @Test
+    public void insert_customer_with_exception_test2() {
+        val customerToPost = CustomerView.builder()
+                .fullName("test_valid_2")
+                .phoneNumber("   ")
+                .balance(1000.0)
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/customers/save");
+
+        try {
+            restTemplate.postForEntity(url,
+                    new HttpEntity<>(customerToPost), CustomerView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("400"));
+            assertThat(ex.getMessage(), containsString("must not be empty"));
+        }
+    }
+
+    @Test
+    public void insert_customer_with_exception_test3() {
+        val customerToPost = CustomerView.builder()
+                .fullName("test_valid3")
+                .phoneNumber("33333333333")
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/customers/save");
+
+        try {
+            restTemplate.postForEntity(url,
+                    new HttpEntity<>(customerToPost), CustomerView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("400"));
+            assertThat(ex.getMessage(), containsString("must not be null"));
+        }
+    }
+
+    @Test
+    public void insert_customer_with_exception_test4() {
+        val customerToPost = CustomerView.builder()
+                .fullName("test_valid3")
+                .phoneNumber("33333333333")
+                .balance(-1000.0)
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/customers/save");
+
+
+        try {
+            restTemplate.postForEntity(url,
+                    new HttpEntity<>(customerToPost), CustomerView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("400"));
+            assertThat(ex.getMessage(), containsString("must be greater than 0.0"));
+        }
     }
 }

@@ -20,6 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
@@ -62,7 +63,6 @@ public class TransactionControllerIntegrationTests extends TestBase {
     public void insertNewTransaction2() {
         newTransaction2 = transactionService.save(Transaction
                 .builder()
-                .id(2)
                 .amount(1000.0)
                 .created(new Date(Instant.now().toEpochMilli()))
                 .customer(newCustomer2)
@@ -106,33 +106,6 @@ public class TransactionControllerIntegrationTests extends TestBase {
         customerService.hardDeleteAll();
         transactionService.hardDeleteAll();
     }
-
-    @Test
-    public void insert_new_transaction_test() {
-        insertNewCustomer1();
-
-        val transactionToPost = TransactionView.builder()
-                .amount(50000.0)
-                .customerId(newCustomer1.getId())
-                .build();
-
-        val url = RestConfiguration.LOCALHOST
-                .concat(String.valueOf(port))
-                .concat("/v1/transactions/save");
-
-        val response = restTemplate.postForEntity(url, new HttpEntity<>(transactionToPost), TransactionView.class);
-
-        assertTrue(StringUtils.isNotBlank(response.toString()));
-        assertNotNull(response.getBody());
-
-        val found = transactionService.findById(response.getBody().getId());
-
-        assertNotNull(found);
-        assertEquals(String.valueOf(response.getBody().getId()), found.getId().toString());
-        assertEquals(String.valueOf(response.getBody().getAmount()), found.getAmount().toString());
-        assertEquals(String.valueOf(response.getBody().getCustomerId()), found.getCustomer().getId().toString());
-    }
-
 
     @Test
     public void get_transaction_by_id_test() {
@@ -258,7 +231,97 @@ public class TransactionControllerIntegrationTests extends TestBase {
         testPagedDataOfTwo(response2.getBody());
     }
 
-    @Test(expected = ResponseStatusException.class)
+    @Test
+    public void insert_new_transaction_test() {
+        insertNewCustomer1();
+
+        val transactionToPost = TransactionView.builder()
+                .amount(50000.0)
+                .customerId(newCustomer1.getId())
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/transactions/save");
+
+        val response = restTemplate.postForEntity(url, new HttpEntity<>(transactionToPost), TransactionView.class);
+
+        assertTrue(StringUtils.isNotBlank(response.toString()));
+        assertNotNull(response.getBody());
+
+        val found = transactionService.findById(response.getBody().getId());
+
+        assertNotNull(found);
+        assertEquals(String.valueOf(response.getBody().getId()), found.getId().toString());
+        assertEquals(String.valueOf(response.getBody().getAmount()), found.getAmount().toString());
+        assertEquals(String.valueOf(response.getBody().getCustomerId()), found.getCustomer().getId().toString());
+    }
+
+
+    @Test
+    public void insert_new_transaction_with_exception_test1() {
+        insertNewCustomer1();
+
+        val transactionToPost = TransactionView.builder()
+                .amount(50000.0)
+                .customerId(null)
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/transactions/save");
+
+        try { // restTemplate => HttpClientError
+            restTemplate.postForEntity(url, new HttpEntity<>(transactionToPost), TransactionView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("406"));
+            assertThat(ex.getMessage(), containsString("customerId must not be null"));
+        }
+    }
+
+    @Test
+    public void insert_new_transaction_with_exception_test2() {
+        insertNewCustomer1();
+
+        val transactionToPost = TransactionView.builder()
+                .amount(null)
+                .customerId(newCustomer1.getId())
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/transactions/save");
+
+        try {
+            restTemplate.postForEntity(url, new HttpEntity<>(transactionToPost), TransactionView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("400"));
+            assertThat(ex.getMessage(), containsString("must not be null"));
+        }
+    }
+
+    @Test
+    public void insert_new_transaction_with_exception_test3() {
+        insertNewCustomer1();
+
+        val transactionToPost = TransactionView.builder()
+                .amount(-1000.0)
+                .customerId(newCustomer1.getId())
+                .build();
+
+        val url = RestConfiguration.LOCALHOST
+                .concat(String.valueOf(port))
+                .concat("/v1/transactions/save");
+
+        try {
+            restTemplate.postForEntity(url, new HttpEntity<>(transactionToPost), TransactionView.class);
+        } catch (final HttpClientErrorException ex) {
+            assertThat(ex.getMessage(), containsString("400"));
+            assertThat(ex.getMessage(), containsString("must be greater than 0.0"));
+        }
+    }
+
+    @Test
     public void delete_transaction_test() {
         insertNewCustomer1();
         insertNewTransaction1();
@@ -275,9 +338,9 @@ public class TransactionControllerIntegrationTests extends TestBase {
         assertNotNull(response.getBody());
         assertEquals(String.valueOf(response.getBody().getId()), (newTransaction1.getId().toString()));
 
-        try {
+        try { // Using service => ResponseStatusException
             transactionService.findById(newTransaction1.getId());
-        } catch (final HttpClientErrorException ex) {
+        } catch (final ResponseStatusException ex) {
             assertThat(ex.getMessage(), containsString("404"));
             assertThat(ex.getMessage(), containsString(String.valueOf(response.getBody().getId())));
         }
