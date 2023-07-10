@@ -5,7 +5,6 @@ import com.customer.transaction.TestBase;
 import com.customer.transaction.controller.View.CustomerView;
 import com.customer.transaction.controller.View.CustomerViewPagedData;
 import com.customer.transaction.data.model.Customer;
-import com.customer.transaction.util.CustomerPagedData;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
@@ -45,7 +43,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
                 .build());
     }
 
-    public void testPagedDataResponse(CustomerPagedData customer) {
+    public void testPagedDataResponse(CustomerViewPagedData customer) {
         assertFalse(customer.getContent().isEmpty());
         assertEquals(2, customer.getTotalElements());
         assertEquals(1, customer.getTotalPages());
@@ -108,7 +106,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/find_all_by_balance_between/")
                 .concat(String.valueOf(min)).concat("&").concat(String.valueOf(max));
-        val response = restTemplate.getForEntity(url, CustomerPagedData.class);
+        val response = restTemplate.getForEntity(url, CustomerViewPagedData.class);
 
         assertTrue(StringUtils.isNotBlank(response.toString()));
         assertNotNull(response.getBody());
@@ -129,7 +127,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
                 .concat("/v1/customers/find_all_by_balance_between/")
                 .concat(String.valueOf(min)).concat("&").concat(String.valueOf(max));
         try {
-            restTemplate.getForEntity(url, CustomerPagedData.class);
+            restTemplate.getForEntity(url, CustomerViewPagedData.class);
         } catch (final HttpClientErrorException ex) {
             assertThat(ex.getMessage(), containsString("404"));
             assertThat(ex.getMessage(), containsString(String.valueOf(min)));
@@ -137,22 +135,22 @@ public class CustomerControllerIntegrationTests extends TestBase {
         }
     }
 
-    public void testNames(List<Customer> customer, int testNum) {
-        assertFalse(customer.isEmpty());
+    public void testNames(CustomerViewPagedData customer, int testNum) {
+        assertFalse(customer.getContent().isEmpty());
 
         if(testNum == 1) {
-            assertTrue(customer
+            assertTrue(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
-            assertFalse(customer
+            assertFalse(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
         }
         else {
-            assertFalse(customer
+            assertFalse(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer1.getId())));
-            assertTrue(customer
+            assertTrue(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer2.getId())));
         }
@@ -166,7 +164,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
         val url = RestConfiguration.LOCALHOST
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/find_all");
-        val response = restTemplate.getForEntity(url, CustomerPagedData.class);
+        val response = restTemplate.getForEntity(url, CustomerViewPagedData.class);
 
         assertTrue(StringUtils.isNotBlank(response.toString()));
         assertNotNull(response.getBody());
@@ -180,7 +178,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/find_all");
         try {
-            restTemplate.getForEntity(url, CustomerPagedData.class);
+            restTemplate.getForEntity(url, CustomerViewPagedData.class);
         } catch (final HttpClientErrorException ex) {
             assertThat(ex.getMessage(), containsString("404"));
         }
@@ -195,22 +193,22 @@ public class CustomerControllerIntegrationTests extends TestBase {
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/find_all_by_full_name/")
                 .concat("test1_full_name");
-        val response = restTemplate.getForEntity(url, CustomerPagedData.class);
+        val response = restTemplate.getForEntity(url, CustomerViewPagedData.class);
         assertTrue(StringUtils.isNotBlank(response.toString()));
         assertNotNull(response.getBody());
 
-        testNames(response.getBody().getContent(), 1);
+        testNames(response.getBody(), 1);
 
         val url2 = RestConfiguration.LOCALHOST
                 .concat(String.valueOf(port))
                 .concat("/v1/customers/find_all_by_full_name/")
                 .concat("test2_full_name");
-        val response2 = restTemplate.getForEntity(url2, CustomerPagedData.class);
+        val response2 = restTemplate.getForEntity(url2, CustomerViewPagedData.class);
         assertTrue(StringUtils.isNotBlank(response2.toString()));
         assertNotNull(response2.getBody());
 
 
-        testNames(response2.getBody().getContent(), 2);
+        testNames(response2.getBody(), 2);
     }
 
     @Test
@@ -223,7 +221,7 @@ public class CustomerControllerIntegrationTests extends TestBase {
                 .concat("/v1/customers/find_all_by_full_name/")
                 .concat("test3_full_name");
         try {
-            restTemplate.getForEntity(url, CustomerPagedData.class);
+            restTemplate.getForEntity(url, CustomerViewPagedData.class);
         } catch (final HttpClientErrorException ex) {
             assertThat(ex.getMessage(), containsString("404"));
             assertThat(ex.getMessage(), containsString("test3_full_name"));

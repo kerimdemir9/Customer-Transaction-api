@@ -8,8 +8,6 @@ import com.customer.transaction.util.SortDirection;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -28,7 +26,6 @@ public class TransactionServiceIntegrationTests extends TestBase {
     private void insertNewCustomer1() {
         newCustomer1 = customerService.save(Customer
                 .builder()
-                .id(1)
                 .fullName("test1_full_name")
                 .phoneNumber("11111111111")
                 .balance(30000.0)
@@ -38,7 +35,6 @@ public class TransactionServiceIntegrationTests extends TestBase {
     public void insertNewCustomer2() {
         newCustomer2 = customerService.save(Customer
                 .builder()
-                .id(2)
                 .fullName("test2_full_name")
                 .phoneNumber("22222222222")
                 .balance(60000.0)
@@ -49,9 +45,7 @@ public class TransactionServiceIntegrationTests extends TestBase {
     public void insertNewTransaction1() {
         newTransaction1 = transactionService.save(Transaction
                 .builder()
-                .id(1)
                 .amount(5000.0)
-                .created(new Date(Instant.now().toEpochMilli()))
                 .customer(newCustomer1)
                 .build());
     }
@@ -59,9 +53,7 @@ public class TransactionServiceIntegrationTests extends TestBase {
     public void insertNewTransaction2() {
         newTransaction2 = transactionService.save(Transaction
                 .builder()
-                .id(1)
                 .amount(5000.0)
-                .created(new Date(Instant.now().toEpochMilli()))
                 .customer(newCustomer2)
                 .build());
     }
@@ -133,7 +125,7 @@ public class TransactionServiceIntegrationTests extends TestBase {
         assertNotNull(found);
         assertEquals(newTransaction1.getId(), found.getId());
         assertEquals(newTransaction1.getAmount(), found.getAmount());
-        assertEquals(newTransaction1.getCustomerId(), found.getCustomerId());
+        assertEquals(newTransaction1.getCustomer().getId(), found.getCustomer().getId());
     }
 
     @Test

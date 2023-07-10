@@ -1,5 +1,6 @@
 package com.customer.transaction.controller;
 
+import com.customer.transaction.controller.View.CustomerView;
 import com.customer.transaction.controller.View.TransactionViewPagedData;
 import com.customer.transaction.controller.View.TransactionView;
 import com.customer.transaction.data.model.Customer;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static com.customer.transaction.controller.util.Parsers.tryParseInteger;
 import static com.customer.transaction.controller.util.Parsers.tryParseLong;
@@ -57,36 +59,43 @@ public class TransactionController {
         return ResponseEntity.ok(mapPaged(result));
     }
 
-    @RequestMapping(value = "/v1/transactions/find_all_by_customer", method = RequestMethod.GET)
+    @RequestMapping(value = "/v1/transactions/find_all_by_customer/{customerId}", method = RequestMethod.GET)
     private ResponseEntity<TransactionViewPagedData> getAllTransactionsByCustomerV1(
-            @RequestBody Customer customer,
+            @PathVariable String customerId,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        log.info("Calling: getAllTransactionsByCustomerV1 >> Customer fullName: ".concat(customer.getFullName()));
 
-        val result = transactionService.findAllByCustomer(customer, pageNo, pageSize, sortBy, SortDirection.of(sortDir));
+        val customerModel = customerService.findById(tryParseInteger(customerId, "customerId"));
+
+        log.info("Calling: getAllTransactionsByCustomerV1 >> Customer fullName: ".concat(customerModel.getFullName()));
+
+
+        val result = transactionService.findAllByCustomer(customerModel, pageNo, pageSize, sortBy, SortDirection.of(sortDir));
 
         return ResponseEntity.ok(mapPaged(result));
     }
 
 
-    @RequestMapping(value = "/v1/transactions/find_all_by_customer_created_before_created_after", method = RequestMethod.GET)
+    @RequestMapping(value = "/v1/transactions/find_all_by_customer_created_before_created_after/{customerId}", method = RequestMethod.GET)
     private ResponseEntity<TransactionViewPagedData> getAllByCustomerAndCreatedBeforeAndCreatedAfterV1(
-            @RequestBody Customer customer,
+            @PathVariable String customerId,
             @RequestParam(defaultValue = "") String createdBefore,
             @RequestParam(defaultValue = "") String createdAfter,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
+
+        val customerModel = customerService.findById(tryParseInteger(customerId, "customerId"));
+
         log.info("Calling: getAllByCustomerAndCreatedBeforeAndCreatedAfterV1 >> Customer: "
-                .concat(customer.toString())
+                .concat(customerModel.toString())
                 .concat(" | Created Before: ").concat(createdBefore)
                 .concat(" | Created After: ").concat(createdAfter));
 
-        val result = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer,
+        val result = transactionService.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customerModel,
                 new Date(tryParseLong(createdBefore, "createdBefore")),
                 new Date(tryParseLong(createdAfter, "createdAfter")), pageNo, pageSize, sortBy, SortDirection.of(sortDir));
 
@@ -97,19 +106,16 @@ public class TransactionController {
 
 
     @RequestMapping(value = "/v1/transactions/save", method = RequestMethod.POST)
-    private ResponseEntity<TransactionView> saveTransactionV1(@RequestBody Transaction transaction) {
+    private ResponseEntity<TransactionView> saveTransactionV1(@RequestBody TransactionView transaction) {
         log.info("Calling: saveTransactionV1 >> ".concat(transaction.toString()));
 
-
-        Customer customer = customerService.findById(transaction.getCustomerId());
-
+        val customer = customerService.findById(transaction.getCustomerId());
 
         val saved = transactionService.save(Transaction
                 .builder()
                 .id(transaction.getId())
                 .created(transaction.getCreated())
                 .amount(transaction.getAmount())
-                .customerId(transaction.getCustomerId())
                 .customer(customer)
                 .build());
 

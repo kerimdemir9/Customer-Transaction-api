@@ -2,12 +2,14 @@ package com.customer.transaction.data.service;
 
 import com.customer.transaction.data.model.Customer;
 import com.customer.transaction.data.model.Transaction;
+import com.customer.transaction.data.repository.CustomerRepository;
 import com.customer.transaction.data.repository.TransactionRepository;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,15 +18,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
-import java.util.Objects;
 
 @Service
 @Slf4j
 public class TransactionService {
     final TransactionRepository transactionRepository;
+    final CustomerRepository customerRepository;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    @Autowired
+    public TransactionService(TransactionRepository transactionRepository, CustomerRepository customerRepository) {
         this.transactionRepository = transactionRepository;
+        this.customerRepository = customerRepository;
     }
 
     public Transaction findById(Integer id) {

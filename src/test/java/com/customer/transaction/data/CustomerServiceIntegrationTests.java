@@ -7,10 +7,8 @@ import com.customer.transaction.util.SortDirection;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collection;
 
 import static org.junit.Assert.*;
 
@@ -23,7 +21,6 @@ public class CustomerServiceIntegrationTests extends TestBase{
     public void insertNewCustomer1() {
         newCustomer1 = customerService.save(Customer
                 .builder()
-                .id(1)
                 .fullName("test1_full_name")
                 .phoneNumber("11111111111")
                 .balance(30000.0)
@@ -33,7 +30,6 @@ public class CustomerServiceIntegrationTests extends TestBase{
     public void insertNewCustomer2() {
         newCustomer2 = customerService.save(Customer
                 .builder()
-                .id(2)
                 .fullName("test2_full_name")
                 .phoneNumber("22222222222")
                 .balance(60000.0)

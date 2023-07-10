@@ -29,19 +29,10 @@ public class Transaction {
     @Column(insertable = false, updatable = false)
     private Date created;
 
-    @Column(name = "customer_id", insertable=false, updatable=false)
-    private Integer customerId;
 
     @ManyToOne
     @JsonBackReference
     private Customer customer;
-
-    @PrePersist
-    public void prePersist() {
-        if (customer != null) {
-            customerId = customer.getId();
-        }
-    }
 }
 
 

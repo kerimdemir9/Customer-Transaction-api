@@ -10,4 +10,8 @@ spring:
     show-sql: false
     open-in-view: false
     database: mysql
-
+server:
+  port: 8888
+  error:
+    include-message: always
+    include-binding-errors: always

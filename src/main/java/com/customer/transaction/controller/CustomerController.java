@@ -82,7 +82,7 @@ public class CustomerController {
 
 
     @RequestMapping(value = "/v1/customers/save", method = RequestMethod.POST)
-    private ResponseEntity<CustomerView> saveCustomerV1(@RequestBody Customer customer) {
+    private ResponseEntity<CustomerView> saveCustomerV1(@RequestBody CustomerView customer) {
         log.info("Calling: saveCustomerV1 >> ".concat(customer.toString()));
 
         val saved = customerService.save(Customer
