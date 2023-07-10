@@ -5,6 +5,8 @@ import com.customer.transaction.data.model.Transaction;
 import com.customer.transaction.data.repository.CustomerRepository;
 import com.customer.transaction.data.repository.TransactionRepository;
 import com.customer.transaction.data.util.GenericPagedModel;
+import com.customer.transaction.data.validator.CustomerValidator;
+import com.customer.transaction.data.validator.TransactionValidator;
 import com.customer.transaction.util.SortDirection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -25,10 +27,15 @@ public class TransactionService {
     final TransactionRepository transactionRepository;
     final CustomerRepository customerRepository;
 
+    final CustomerValidator customerValidator;
+    final TransactionValidator transactionValidator;
+
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, CustomerRepository customerRepository) {
+    public TransactionService(TransactionRepository transactionRepository, CustomerRepository customerRepository, CustomerValidator customerValidator, TransactionValidator transactionValidator) {
         this.transactionRepository = transactionRepository;
         this.customerRepository = customerRepository;
+        this.customerValidator = customerValidator;
+        this.transactionValidator = transactionValidator;
     }
 
     public Transaction findById(Integer id) {
@@ -57,6 +64,7 @@ public class TransactionService {
 
     public GenericPagedModel<Transaction> findAllByCustomer(Customer customer, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
+            customerValidator.validate(customer);
             val result = sortDirection.equals(SortDirection.Ascending)
                     ? transactionRepository.findAllByCustomer(customer, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
                     : transactionRepository.findAllByCustomer(customer, PageRequest.of(page, size, Sort.by(sortBy).descending()));
@@ -77,6 +85,7 @@ public class TransactionService {
 
     public GenericPagedModel<Transaction> findAllByCustomerAndCreatedBeforeAndCreatedAfter(Customer customer, Date createdBefore, Date createdAfter, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
+            customerValidator.validate(customer);
             val result = sortDirection.equals(SortDirection.Ascending)
                     ? transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdAfter, createdBefore, PageRequest.of(page, size, Sort.by(sortBy).ascending()))
                     : transactionRepository.findAllByCustomerAndCreatedBeforeAndCreatedAfter(customer, createdAfter, createdBefore, PageRequest.of(page, size, Sort.by(sortBy).descending()));
@@ -96,6 +105,7 @@ public class TransactionService {
 
     public Transaction save(Transaction transaction) {
         try {
+            transactionValidator.validate(transaction);
             if(transaction.getCustomer().getId() == null || transaction.getCustomer().getId() < 1) {
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Customer id doesn't exists");
             }

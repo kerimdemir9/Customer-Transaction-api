@@ -3,6 +3,7 @@ package com.customer.transaction.data.service;
 import com.customer.transaction.data.model.Customer;
 import com.customer.transaction.data.repository.CustomerRepository;
 import com.customer.transaction.data.util.GenericPagedModel;
+import com.customer.transaction.data.validator.CustomerValidator;
 import com.customer.transaction.util.SortDirection;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -14,18 +15,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Objects;
 
 
 @Service
 public class CustomerService {
     final CustomerRepository customerRepository;
+    final CustomerValidator customerValidator;
 
     // TODO: add validator
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, CustomerValidator customerValidator) {
         this.customerRepository = customerRepository;
+        this.customerValidator = customerValidator;
     }
 
     public Customer findById(Integer id) {
@@ -97,6 +99,7 @@ public class CustomerService {
 
     public Customer save(Customer customer) {
         try {
+            customerValidator.validate(customer);
             if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE,
                         "phoneNumber: ".concat(customer.getPhoneNumber()).concat(" already exists"));
