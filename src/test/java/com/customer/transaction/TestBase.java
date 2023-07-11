@@ -1,5 +1,7 @@
 package com.customer.transaction;
 
+import com.customer.transaction.data.service.CustomerLogService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +40,11 @@ public abstract class TestBase {
     public CustomerService customerService;
     @Autowired
     public TransactionService transactionService;
+    @Autowired
+    public CustomerLogService customerLogService;
+
+    @Autowired
+    public ObjectMapper objectMapper;
 
     static {
         container = new MySQLContainer<>(IMAGE_VERSION)

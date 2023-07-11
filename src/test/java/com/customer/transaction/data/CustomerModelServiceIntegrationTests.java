@@ -4,6 +4,7 @@ import com.customer.transaction.data.model.CustomerModel;
 import com.customer.transaction.TestBase;
 import com.customer.transaction.data.util.GenericPagedModel;
 import com.customer.transaction.util.SortDirection;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,27 +13,28 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.Assert.*;
 
-public class CustomerModelServiceIntegrationTests extends TestBase{
+public class CustomerModelServiceIntegrationTests extends TestBase {
 
     private static CustomerModel newCustomer1Model;
 
     private static CustomerModel newCustomer2Model;
 
+
     public void insertNewCustomer1() {
         newCustomer1Model = customerService.save(CustomerModel
                 .builder()
+                .balance(30000.0)
                 .fullName("test1_full_name")
                 .phoneNumber("11111111111")
-                .balance(30000.0)
                 .build());
     }
 
     public void insertNewCustomer2() {
         newCustomer2Model = customerService.save(CustomerModel
                 .builder()
+                .balance(60000.0)
                 .fullName("test2_full_name")
                 .phoneNumber("22222222222")
-                .balance(60000.0)
                 .build());
     }
 
@@ -51,6 +53,7 @@ public class CustomerModelServiceIntegrationTests extends TestBase{
     @Before
     public void setup() {
         customerService.hardDeleteAll();
+        customerLogService.hardDeleteAll();
     }
 
     @Test
@@ -102,15 +105,14 @@ public class CustomerModelServiceIntegrationTests extends TestBase{
     public void testNames(GenericPagedModel<CustomerModel> customer, int testNum) {
         assertFalse(customer.getContent().isEmpty());
 
-        if(testNum == 1) {
+        if (testNum == 1) {
             assertTrue(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
             assertFalse(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer2Model.getId())));
-        }
-        else {
+        } else {
             assertFalse(customer.getContent()
                     .stream()
                     .anyMatch(c -> c.getId().equals(newCustomer1Model.getId())));
@@ -126,7 +128,7 @@ public class CustomerModelServiceIntegrationTests extends TestBase{
         insertNewCustomer2();
 
         testNames(customerService.findAllByFullName("test1_full_name", 0, 10, "id",
-                        SortDirection.Descending), 1);
+                SortDirection.Descending), 1);
         testNames(customerService.findAllByFullName("test2_full_name", 0, 10, "id",
                 SortDirection.Descending), 2);
     }
@@ -154,5 +156,48 @@ public class CustomerModelServiceIntegrationTests extends TestBase{
         assertEquals(newCustomer1Model.getId(), deleted.getId());
 
         customerService.findById(deleted.getId());
+    }
+
+
+    @Test
+    public void insert_customer_audit_test() throws JsonProcessingException {
+        insertNewCustomer1();
+        val logs = customerLogService.findAllByCustomerId(newCustomer1Model.getId(), 0, 10, "id", SortDirection.of("asc"));
+
+        assertNotNull(logs);
+
+        val found = logs.getContent().stream().findFirst().orElse(null);
+
+        assertNotNull(found);
+        assertEquals(objectMapper.readValue(found.getNewVersion(), CustomerModel.class), newCustomer1Model);
+    }
+
+
+    @Test
+    public void update_costumer_audit_test() throws JsonProcessingException {
+        insertNewCustomer1();
+        val updated = customerService.save(CustomerModel
+                .builder()
+                .id(newCustomer1Model.getId())
+                .fullName("new full name")
+                .phoneNumber("55555555555")
+                .balance(20.0)
+                .build());
+
+        val logs = customerLogService.findAllByCustomerId(newCustomer1Model.getId(), 0, 10, "id", SortDirection.of("asc"));
+        val found = logs.getContent().stream().filter(l -> l.getLogType().equals("updated")).findFirst().orElse(null);
+        assertNotNull(found);
+        assertEquals(objectMapper.readValue(found.getNewVersion(), CustomerModel.class), updated);
+    }
+
+    @Test
+    public void delete_customer_audit_test() throws JsonProcessingException {
+        insertNewCustomer1();
+        customerService.hardDelete(newCustomer1Model.getId());
+
+        val logs = customerLogService.findAllByCustomerId(newCustomer1Model.getId(), 0, 10, "id", SortDirection.of("asc"));
+        val found = logs.getContent().stream().filter(l -> l.getLogType().equals("deleted")).findFirst().orElse(null);
+        assertNotNull(found);
+        assertNull(found.getNewVersion());
     }
 }

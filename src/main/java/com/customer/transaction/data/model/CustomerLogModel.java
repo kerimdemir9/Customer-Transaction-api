@@ -33,8 +33,7 @@ public class CustomerLogModel {
     @Column(name = "created", insertable = false, updatable = false)
     private Date created;
 
-    @ManyToOne
-    @JsonBackReference
-    private CustomerModel customer;
+    @Column(name = "customer_id")
+    private Integer customerId;
 
 }

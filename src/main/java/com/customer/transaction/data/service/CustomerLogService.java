@@ -58,6 +58,25 @@ public class CustomerLogService {
         }
     }
 
+    public GenericPagedModel<CustomerLogModel> findAll(int page, int size, String sortBy, SortDirection sortDirection) {
+        try {
+            val result = sortDirection.equals(SortDirection.Ascending)
+                    ? customerLogRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy).ascending()))
+                    : customerLogRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy).descending()));
+            if (result.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No data found");
+            }
+            return GenericPagedModel.<CustomerLogModel>builder()
+                    .totalElements(result.getTotalElements())
+                    .numberOfElements(result.getNumberOfElements())
+                    .totalPages(result.getTotalPages())
+                    .content(result.getContent())
+                    .build();
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
     public GenericPagedModel<CustomerLogModel> findAllByCreatedBeforeAndCreatedAfter(Date createdBefore, Date createdAfter, int page, int size, String sortBy, SortDirection sortDirection) {
         try {
             val result = sortDirection.equals(SortDirection.Ascending)
@@ -132,3 +151,5 @@ public class CustomerLogService {
         }
     }
 }
+
+
